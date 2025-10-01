@@ -32,43 +32,55 @@ class ConvNet(Model):
         Output layer with softmax activation for class prediction.
     """
 
-    def __init__(self, n_classes: int = 10, **kwargs):
+    def __init__(self, n_classes: int = 10, drop_out: float = 0.25,  **kwargs):
         super().__init__(**kwargs)
         self.abbreviation = "convnet"
 
         # ConvNet block 1
-        self.conv1 = layers.Conv2D(32, (3, 3), padding="same")
+        self.conv1 = layers.Conv2D(64, (3, 3), padding="same")
         self.bn1 = layers.BatchNormalization()
         self.relu1 = layers.ReLU()
         self.pool1 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout1 = layers.Dropout(0.2)
+        self.dropout1 = layers.Dropout(drop_out)
 
         # ConvNet block 2
-        self.conv2 = layers.Conv2D(64, (3, 3), padding="same")
+        self.conv2 = layers.Conv2D(128, (5, 5), padding="same")
         self.bn2 = layers.BatchNormalization()
         self.relu2 = layers.ReLU()
         self.pool2 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout2 = layers.Dropout(0.3)
+        self.dropout2 = layers.Dropout(drop_out)
 
         # ConvNet block 3
-        self.conv3 = layers.Conv2D(128, (3, 3), padding="same")
+        self.conv3 = layers.Conv2D(512, (3, 3), padding="same")
         self.bn3 = layers.BatchNormalization()
         self.relu3 = layers.ReLU()
         self.pool3 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout3 = layers.Dropout(0.3)
+        self.dropout3 = layers.Dropout(drop_out)
 
         # ConvNet block 4
-        self.conv4 = layers.Conv2D(256, (3, 3), padding="same")
+        self.conv4 = layers.Conv2D(512, (3, 3), padding="same")
         self.bn4 = layers.BatchNormalization()
         self.relu4 = layers.ReLU()
+        self.pool4 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
+        self.dropout4 = layers.Dropout(drop_out)
 
-        # Dropout layer
-        self.dropout = layers.Dropout(0.4)
+        # Flatten layer
+        self.flatten = layers.Flatten();
 
-        # Global Average Pooling and Dense layers
-        self.global_pool = layers.GlobalAveragePooling2D()
-        self.fc1 = layers.Dense(128, activation="relu")
-        self.dropout_fc = layers.Dropout(0.4)
+        # Dense layer 1
+        self.fc1 = layers.Dense(256)
+        self.bnd1 = layers.BatchNormalization()
+        self.relud1 = layers.ReLU()
+        self.dropoutd1 = layers.Dropout(drop_out)
+
+        # Dense layer 2
+        self.fc2 = layers.Dense(256)
+        self.bnd2 = layers.BatchNormalization()
+        self.relud2 = layers.ReLU()
+        self.dropoutd2 = layers.Dropout(drop_out)
+
+
+        # Output layer
         self.classifier = layers.Dense(n_classes, activation="softmax")
 
     def call(self, x):
@@ -110,12 +122,24 @@ class ConvNet(Model):
         x = self.conv4(x)
         x = self.bn4(x)
         x = self.relu4(x)
+        x = self.pool4(x)
+        x = self.dropout4(x)
 
-        # Dropout and dense layers
-        x = self.dropout(x)
-        x = self.global_pool(x)
+        # Flatten
+        x = self.flatten(x)
+
+        # Dense layer 1
         x = self.fc1(x)
-        x = self.dropout_fc(x)
+        x = self.bnd1(x)
+        x = self.relud1(x)
+        x = self.dropoutd1(x)
+
+        # Dense layer 2
+        x = self.fc2(x)
+        x = self.bnd2(x)
+        x = self.relud2(x)
+        x = self.dropoutd2(x)
+
         return self.classifier(x)
 
 
