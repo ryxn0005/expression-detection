@@ -1,145 +1,54 @@
-from keras.src import layers, Model
+from keras import layers, models
 
+def build_convnet(
+    n_classes: int = 9,
+    drop_out: float = 0.25,
+    input_shape=(64, 64, 1),
+):
+    return models.Sequential(
+        [
+            layers.Input(shape=input_shape),
 
-class ConvNet(Model):
-    """
-    ConvNet is a convolutional neural network model designed for image classification tasks.
+            # Block 1
+            layers.Conv2D(64, (3, 3), padding="same"),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(drop_out),
 
-    @Parameters:
-    n_classes : int, optional, default=10
-        Number of output classes for classification.
-    kwargs : dict
-        Additional arguments for the Keras Model initialization.
+            # Block 2
+            layers.Conv2D(128, (5, 5), padding="same"),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(drop_out),
 
-    @Attributes:
-    abbreviation : str
-        Abbreviation used to name model files and logs.
-    conv1, conv2, conv3, conv4 : tf.keras.layers.Conv2D
-        Convolutional layers for feature extraction.
-    bn1, bn2, bn3, bn4 : tf.keras.layers.BatchNormalization
-        Batch normalization layers to stabilize training.
-    relu1, relu2, relu3, relu4 : tf.keras.layers.ReLU
-        Activation layers for introducing non-linearity.
-    pool1, pool2, pool3 : tf.keras.layers.MaxPooling2D
-        Pooling layers to reduce spatial dimensions.
-    dropout1, dropout2, dropout3, dropout_fc : tf.keras.layers.Dropout
-        Dropout layers to prevent overfitting.
-    global_pool : tf.keras.layers.GlobalAveragePooling2D
-        Global average pooling layer for dimensionality reduction.
-    fc1 : tf.keras.layers.Dense
-        Fully connected layer for further feature extraction.
-    classifier : tf.keras.layers.Dense
-        Output layer with softmax activation for class prediction.
-    """
+            # Block 3
+            layers.Conv2D(512, (3, 3), padding="same"),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(drop_out),
 
-    def __init__(self, n_classes: int = 10, drop_out: float = 0.25,  **kwargs):
-        super().__init__(**kwargs)
-        self.abbreviation = "convnet"
+            # Block 4
+            layers.Conv2D(512, (3, 3), padding="same"),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(drop_out),
 
-        # ConvNet block 1
-        self.conv1 = layers.Conv2D(64, (3, 3), padding="same")
-        self.bn1 = layers.BatchNormalization()
-        self.relu1 = layers.ReLU()
-        self.pool1 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout1 = layers.Dropout(drop_out)
+            # Dense head
+            layers.Flatten(),
+            layers.Dense(256),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.Dropout(drop_out),
 
-        # ConvNet block 2
-        self.conv2 = layers.Conv2D(128, (5, 5), padding="same")
-        self.bn2 = layers.BatchNormalization()
-        self.relu2 = layers.ReLU()
-        self.pool2 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout2 = layers.Dropout(drop_out)
+            layers.Dense(512),
+            layers.BatchNormalization(),
+            layers.ReLU(),
+            layers.Dropout(drop_out),
 
-        # ConvNet block 3
-        self.conv3 = layers.Conv2D(512, (3, 3), padding="same")
-        self.bn3 = layers.BatchNormalization()
-        self.relu3 = layers.ReLU()
-        self.pool3 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout3 = layers.Dropout(drop_out)
-
-        # ConvNet block 4
-        self.conv4 = layers.Conv2D(512, (3, 3), padding="same")
-        self.bn4 = layers.BatchNormalization()
-        self.relu4 = layers.ReLU()
-        self.pool4 = layers.MaxPooling2D(pool_size=(2, 2), strides=2)
-        self.dropout4 = layers.Dropout(drop_out)
-
-        # Flatten layer
-        self.flatten = layers.Flatten();
-
-        # Dense layer 1
-        self.fc1 = layers.Dense(256)
-        self.bnd1 = layers.BatchNormalization()
-        self.relud1 = layers.ReLU()
-        self.dropoutd1 = layers.Dropout(drop_out)
-
-        # Dense layer 2
-        self.fc2 = layers.Dense(256)
-        self.bnd2 = layers.BatchNormalization()
-        self.relud2 = layers.ReLU()
-        self.dropoutd2 = layers.Dropout(drop_out)
-
-
-        # Output layer
-        self.classifier = layers.Dense(n_classes, activation="softmax")
-
-    def call(self, x):
-        """
-        Forward pass of the ConvNet model, defining the flow of data through each layer.
-
-        @Usage:
-            Passes input data through convolutional, pooling, dropout, and dense layers to produce output predictions.
-
-        @Parameters:
-        x : tf.Tensor
-            Input tensor with shape (batch_size, height, width, channels).
-
-        @Returns:
-        tf.Tensor : Prediction tensor with shape (batch_size, n_classes).
-        """
-        # ConvNet block 1
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu1(x)
-        x = self.pool1(x)
-        x = self.dropout1(x)
-
-        # ConvNet block 2
-        x = self.conv2(x)
-        x = self.bn2(x)
-        x = self.relu2(x)
-        x = self.pool2(x)
-        x = self.dropout2(x)
-
-        # ConvNet block 3
-        x = self.conv3(x)
-        x = self.bn3(x)
-        x = self.relu3(x)
-        x = self.pool3(x)
-        x = self.dropout3(x)
-
-        # ConvNet block 4
-        x = self.conv4(x)
-        x = self.bn4(x)
-        x = self.relu4(x)
-        x = self.pool4(x)
-        x = self.dropout4(x)
-
-        # Flatten
-        x = self.flatten(x)
-
-        # Dense layer 1
-        x = self.fc1(x)
-        x = self.bnd1(x)
-        x = self.relud1(x)
-        x = self.dropoutd1(x)
-
-        # Dense layer 2
-        x = self.fc2(x)
-        x = self.bnd2(x)
-        x = self.relud2(x)
-        x = self.dropoutd2(x)
-
-        return self.classifier(x)
-
-
+            layers.Dense(n_classes, activation="softmax"),
+        ]
+    )
