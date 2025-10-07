@@ -36,7 +36,7 @@ def build_convnet(
         [
             layers.Input(shape=input_shape),
 
-            # Block 1: Conv32 -> Conv64 -> BN -> MaxPool -> Dropout(0.25)
+            # Block 1
             layers.Conv2D(32, (3, 3), padding="same", kernel_initializer="he_normal"),
             layers.ReLU(),
             layers.Conv2D(64, (3, 3), padding="same", kernel_initializer="he_normal"),
@@ -45,7 +45,7 @@ def build_convnet(
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Dropout(drop_out),
 
-            # Block 2: Conv128(l2) -> Conv256(l2) -> BN -> MaxPool -> Dropout(0.25)
+            # Block 2
             layers.Conv2D(128, (3, 3), padding="same",
                           kernel_regularizer=l2_reg, kernel_initializer="he_normal"),
             layers.ReLU(),
