@@ -41,7 +41,3 @@ python app.py
 
 The window will open, faces will be boxed, and the predicted emotion plus confidence will be drawn above the face.
 Press q or Esc to quit.
-```
-```
-```
-```
