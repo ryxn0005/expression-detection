@@ -28,7 +28,7 @@ def plot_confusion_matrix(y_true, y_pred, figsize=(5, 4), dpi=100):
     cm = confusion_matrix(y_true, y_pred)
 
     # Set up the plot with specified figure size and resolution
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    _, ax = plt.subplots(figsize=figsize, dpi=dpi)
 
     # Initialize ConfusionMatrixDisplay with computed matrix and plot it on the axes
     cmp = ConfusionMatrixDisplay(confusion_matrix=cm)
