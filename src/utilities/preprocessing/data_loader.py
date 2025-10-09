@@ -109,8 +109,6 @@ def load_data(
     X = np.array([d[0] for d in data], dtype=np.float32)
     y = np.array([d[1] for d in data], dtype=np.int64)
 
-    X = (X / 255)
-
     # ensure channel dim for Keras
     if X.ndim == 3:
         X = X[..., None]  # (N, H, W, 1)
